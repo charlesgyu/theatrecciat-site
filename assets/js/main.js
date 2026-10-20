@@ -16,6 +16,19 @@
   // 메인 영상: 장면에 맞춰 공연 종류 표시
   var heroVideo = document.querySelector('.mv video[data-cues]');
   var nowLabel = document.querySelector('.mv__now b');
+  // 모바일 자동재생이 막히면(저전력 모드 등) 포스터를 보여주고, 첫 터치 때 다시 재생
+  if (heroVideo) {
+    heroVideo.muted = true;
+    var tryPlay = function () {
+      var p = heroVideo.play();
+      if (p && p.catch) p.catch(function () { heroVideo.style.opacity = '0'; });
+    };
+    heroVideo.addEventListener('playing', function () { heroVideo.style.opacity = ''; });
+    tryPlay();
+    ['touchstart', 'click', 'scroll'].forEach(function (ev) {
+      window.addEventListener(ev, function () { if (heroVideo.paused) tryPlay(); }, { once: true, passive: true });
+    });
+  }
   if (heroVideo && nowLabel) {
     var cues = heroVideo.dataset.cues.split(',');
     var sec = parseFloat(heroVideo.dataset.cueSec) || 2;
